@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { FormularioService, Formulario } from '../../services/formulario.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -6,12 +7,30 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <h2>Listagem</h2>
+    <h2>Listagem de Formulários</h2>
     <ul>
-      <li>Item 1</li>
-      <li>Item 2</li>
-      <li>Item 3</li>
+      <li *ngFor="let formulario of formularios">
+        Nome: {{ formulario.nomes }} | CPF: {{ formulario.cpf }} | Telefone: {{ formulario.telefone }}
+        <button (click)="deleteFormulario(formulario.id)">Excluir</button>
+      </li>
     </ul>
   `,
 })
-export class ListagemComponent {}
+export class ListagemComponent implements OnInit {
+  formularios: Formulario[] = [];
+
+  constructor(private formularioService: FormularioService) {}
+
+  ngOnInit() {
+    this.formularioService.getFormularios().subscribe(data => {
+      this.formularios = data;
+    });
+  }
+
+  deleteFormulario(id: number) {
+    this.formularioService.deleteFormulario(id).subscribe(() => {
+      this.formularios = this.formularios.filter(f => f.id !== id);
+      console.log('Formulário excluído com sucesso!');
+    });
+  }
+}
